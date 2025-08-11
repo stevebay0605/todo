@@ -25,5 +25,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['lucide-react']
-  }
+  },
+  publicDir: 'public' // Assure que tous les fichiers du dossier public sont copiés
 });
