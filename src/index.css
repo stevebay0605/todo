@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Configuration du mode sombre */
+@layer base {
+  html {
+    @apply transition-colors duration-300;
+  }
+  
+  .dark {
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100 dark:bg-gray-800;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-gray-600;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-gray-500;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, transform, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for accessibility */
+.focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* Glass morphism effect */
+.glass {
+  @apply bg-white/10 dark:bg-gray-800/10;
+  backdrop-filter: blur(10px);
+  @apply border border-white/20 dark:border-gray-700/20;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom checkbox styles */
+.checkbox-custom {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  @apply border-2 border-gray-300 dark:border-gray-600;
+  border-radius: 0.25rem;
+  @apply bg-white dark:bg-gray-700;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.checkbox-custom:checked {
+  @apply bg-purple-600 border-purple-600;
+}
+
+.checkbox-custom:checked::after {
+  content: '✓';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Card hover effects */
+.card-hover {
+  transform: translateY(0);
+  @apply shadow-lg dark:shadow-gray-900/25;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  @apply shadow-2xl dark:shadow-gray-900/50;
+}
+
+/* Mobile-first responsive design helpers */
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .bg-white\/80,
+  .dark .bg-white\/80 {
+    @apply bg-white/95 dark:bg-gray-800/95;
+  }
+  
+  .border-purple-100,
+  .dark .border-purple-100 {
+    @apply border-purple-500 dark:border-purple-400;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Amélioration de l'accessibilité pour le mode sombre */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Styles spécifiques pour les éléments de formulaire en mode sombre */
+.dark input,
+.dark textarea,
+.dark select {
+  @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  @apply border-purple-500 ring-purple-500;
+}
+
+/* Amélioration des contrastes pour les boutons en mode sombre */
+.dark .btn-primary {
+  @apply bg-purple-600 hover:bg-purple-700;
+}
+
+.dark .btn-secondary {
+  @apply bg-gray-600 hover:bg-gray-700 text-white;
+}
