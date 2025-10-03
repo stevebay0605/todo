@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTodos } from '../contexts/TodoContext';
 import { t, formatDateShort } from '../utils/translations';
-import { Search, Filter, Plus, Edit2, Trash2, CheckCircle2, Circle, Clock, AlertTriangle } from 'lucide-react';
+import { Search, Filter, Plus, CreditCard as Edit2, Trash2, CheckCircle2, Circle, Clock, AlertTriangle } from 'lucide-react';
 import { Box, Container, Typography, Button, TextField, InputAdornment, Card, CardContent, IconButton, Chip, Skeleton, Collapse } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
