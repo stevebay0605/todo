@@ -3,11 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTodos } from '../contexts/TodoContext';
 import { t } from '../utils/translations';
 import { Save, ArrowLeft, Calendar, AlertCircle, Clock, User, Briefcase, ShoppingCart, Heart } from 'lucide-react';
+import { Box, Container, Typography, TextField, Button, Card, CardContent, IconButton, Alert, CircularProgress, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';
 
 const AddEditTodo: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { todos, addTodo, updateTodo } = useTodos();
+  const { isDark } = useTheme();
 
   const isEditing = Boolean(id);
   const existingTodo = isEditing ? todos.find(todo => todo.id === id) : null;
@@ -52,7 +56,7 @@ const AddEditTodo: React.FC = () => {
       const dueDate = new Date(formData.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (dueDate < today) {
         newErrors.dueDate = 'Due date cannot be in the past';
       }
@@ -64,7 +68,7 @@ const AddEditTodo: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -87,7 +91,6 @@ const AddEditTodo: React.FC = () => {
         addTodo(todoData);
       }
 
-      // Simulate API delay for loading state
       await new Promise(resolve => setTimeout(resolve, 500));
 
       navigate('/todos');
@@ -100,232 +103,284 @@ const AddEditTodo: React.FC = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   const priorityOptions = [
-    { value: 'low', label: t('lowPriority'), color: 'text-green-600 bg-green-100', icon: null },
-    { value: 'medium', label: t('mediumPriority'), color: 'text-orange-600 bg-orange-100', icon: Clock },
-    { value: 'high', label: t('highPriority'), color: 'text-red-600 bg-red-100', icon: AlertCircle },
+    { value: 'low', label: t('lowPriority'), icon: null, color: '#10b981' },
+    { value: 'medium', label: t('mediumPriority'), icon: Clock, color: '#f59e0b' },
+    { value: 'high', label: t('highPriority'), icon: AlertCircle, color: '#ef4444' },
   ];
 
   const categoryOptions = [
-    { value: 'personal', label: t('personal'), color: 'text-purple-600 bg-purple-100', icon: User },
-    { value: 'work', label: t('work'), color: 'text-blue-600 bg-blue-100', icon: Briefcase },
-    { value: 'shopping', label: t('shopping'), color: 'text-pink-600 bg-pink-100', icon: ShoppingCart },
-    { value: 'health', label: t('health'), color: 'text-green-600 bg-green-100', icon: Heart },
+    { value: 'personal', label: t('personal'), icon: User, color: '#a855f7' },
+    { value: 'work', label: t('work'), icon: Briefcase, color: '#3b82f6' },
+    { value: 'shopping', label: t('shopping'), icon: ShoppingCart, color: '#ec4899' },
+    { value: 'health', label: t('health'), icon: Heart, color: '#10b981' },
   ];
 
   return (
-    <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center">
-            <button
+    <Box sx={{ p: { xs: 3, md: 6 } }}>
+      <Container maxWidth="md">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+            <IconButton
               onClick={() => navigate(-1)}
-              className="mr-4 p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
+              sx={{
+                mr: 2,
+                color: isDark ? 'rgba(156, 163, 175, 1)' : 'rgba(107, 114, 128, 1)',
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 1)',
+                },
+              }}
             >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              <ArrowLeft size={24} />
+            </IconButton>
+            <Box>
+              <Typography variant="h3" sx={{ fontWeight: 700, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)' }}>
                 {isEditing ? t('editTask') : t('addNewTaskTitle')}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
+              </Typography>
+              <Typography variant="body1" sx={{ color: isDark ? 'rgba(209, 213, 219, 1)' : 'rgba(75, 85, 99, 1)', mt: 0.5 }}>
                 {isEditing ? t('updateTaskDetails') : t('createNewTask')}
-              </p>
-            </div>
-          </div>
-        </div>
+              </Typography>
+            </Box>
+          </Box>
+        </motion.div>
 
-        {/* Form */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100 dark:border-gray-700 overflow-hidden">
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
-            {/* Title */}
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('taskTitle')} *
-              </label>
-              <input
-                type="text"
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder={t('whatNeedsDone')}
-                className={`block w-full px-4 py-3 rounded-xl border-2 transition-colors duration-200 ${
-                  errors.title
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500'
-                } bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1`}
-              />
-              {errors.title && (
-                <p className="mt-2 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  {errors.title}
-                </p>
-              )}
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <Card
+            sx={{
+              bgcolor: isDark ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: 4,
+              border: `1px solid ${isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(243, 232, 255, 0.5)'}`,
+            }}
+          >
+            <CardContent sx={{ p: 4 }}>
+              <form onSubmit={handleSubmit}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 1 }}>
+                      {t('taskTitle')} *
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      placeholder={t('whatNeedsDone')}
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      error={!!errors.title}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 3,
+                          bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'white',
+                        },
+                      }}
+                    />
+                    {errors.title && (
+                      <Alert severity="error" sx={{ mt: 1, py: 0 }}>
+                        {errors.title}
+                      </Alert>
+                    )}
+                  </Box>
 
-            {/* Description */}
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('description')}
-              </label>
-              <textarea
-                id="description"
-                rows={4}
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder={t('additionalDetails')}
-                className={`block w-full px-4 py-3 rounded-xl border-2 resize-none transition-colors duration-200 ${
-                  errors.description
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500'
-                } bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1`}
-              />
-              <div className="flex justify-between items-center mt-2">
-                {errors.description && (
-                  <p className="text-sm text-red-600 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-1" />
-                    {errors.description}
-                  </p>
-                )}
-                <p className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
-                  {formData.description.length}/500
-                </p>
-              </div>
-            </div>
-
-            {/* Priority */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                {t('priorityLevel')}
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {priorityOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleInputChange('priority', option.value)}
-                      className={`relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        formData.priority === option.value
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full mr-3 ${option.color}`}>
-                        {Icon ? <Icon className="h-4 w-4" /> : <div className="w-2 h-2 rounded-full bg-current" />}
-                      </div>
-                      <span className="font-medium text-gray-900 dark:text-white">{option.label}</span>
-                      {formData.priority === option.value && (
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 1 }}>
+                      {t('description')}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={4}
+                      placeholder={t('additionalDetails')}
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      error={!!errors.description}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 3,
+                          bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'white',
+                        },
+                      }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      {errors.description && (
+                        <Alert severity="error" sx={{ py: 0, flex: 1, mr: 2 }}>
+                          {errors.description}
+                        </Alert>
                       )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                      <Typography variant="caption" sx={{ color: isDark ? 'rgba(156, 163, 175, 1)' : 'rgba(107, 114, 128, 1)', ml: 'auto' }}>
+                        {formData.description.length}/500
+                      </Typography>
+                    </Box>
+                  </Box>
 
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                {t('category')}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {categoryOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleInputChange('category', option.value)}
-                      className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        formData.category === option.value
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                      }`}
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 2 }}>
+                      {t('priorityLevel')}
+                    </Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+                      {priorityOptions.map((option) => {
+                        const Icon = option.icon;
+                        return (
+                          <motion.div key={option.value} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                            <Button
+                              fullWidth
+                              variant={formData.priority === option.value ? 'contained' : 'outlined'}
+                              onClick={() => handleInputChange('priority', option.value)}
+                              sx={{
+                                borderRadius: 3,
+                                py: 2,
+                                borderWidth: 2,
+                                borderColor: formData.priority === option.value ? option.color : isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)',
+                                bgcolor: formData.priority === option.value ? option.color : 'transparent',
+                                color: formData.priority === option.value ? 'white' : isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)',
+                                '&:hover': {
+                                  borderWidth: 2,
+                                  borderColor: option.color,
+                                  bgcolor: formData.priority === option.value ? option.color : isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 1)',
+                                },
+                              }}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {Icon && <Icon size={18} />}
+                                {!Icon && <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'currentColor' }} />}
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                  {option.label}
+                                </Typography>
+                              </Box>
+                            </Button>
+                          </motion.div>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 2 }}>
+                      {t('category')}
+                    </Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: 2 }}>
+                      {categoryOptions.map((option) => {
+                        const Icon = option.icon;
+                        return (
+                          <motion.div key={option.value} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                            <Button
+                              fullWidth
+                              variant={formData.category === option.value ? 'contained' : 'outlined'}
+                              onClick={() => handleInputChange('category', option.value)}
+                              sx={{
+                                borderRadius: 3,
+                                py: 2,
+                                borderWidth: 2,
+                                borderColor: formData.category === option.value ? option.color : isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)',
+                                bgcolor: formData.category === option.value ? option.color : 'transparent',
+                                color: formData.category === option.value ? 'white' : isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)',
+                                '&:hover': {
+                                  borderWidth: 2,
+                                  borderColor: option.color,
+                                  bgcolor: formData.category === option.value ? option.color : isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 1)',
+                                },
+                                flexDirection: 'column',
+                                gap: 1,
+                              }}
+                            >
+                              <Icon size={24} />
+                              <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                                {option.label}
+                              </Typography>
+                            </Button>
+                          </motion.div>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 1 }}>
+                      {t('dueDate')} {t('optional')}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      value={formData.dueDate}
+                      onChange={(e) => handleInputChange('dueDate', e.target.value)}
+                      error={!!errors.dueDate}
+                      inputProps={{ min: new Date().toISOString().split('T')[0] }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 3,
+                          bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'white',
+                        },
+                      }}
+                    />
+                    {errors.dueDate && (
+                      <Alert severity="error" sx={{ mt: 1, py: 0 }}>
+                        {errors.dueDate}
+                      </Alert>
+                    )}
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2, borderTop: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}` }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => navigate(-1)}
+                      disabled={loading}
+                      sx={{
+                        borderRadius: 3,
+                        px: 4,
+                        py: 1.5,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        borderColor: isDark ? 'rgba(107, 114, 128, 1)' : 'rgba(209, 213, 219, 1)',
+                        color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)',
+                      }}
                     >
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 ${option.color}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{option.label}</span>
-                      {formData.category === option.value && (
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full"></div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Due Date */}
-            <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('dueDate')} {t('optional')}
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                </div>
-                <input
-                  type="date"
-                  id="dueDate"
-                  value={formData.dueDate}
-                  onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className={`block w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-colors duration-200 ${
-                    errors.dueDate
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500'
-                  } bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1`}
-                />
-              </div>
-              {errors.dueDate && (
-                <p className="mt-2 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  {errors.dueDate}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Buttons */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
-                disabled={loading}
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={loading || !formData.title.trim()}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                    {isEditing ? t('updating') : t('creating')}
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-5 w-5 mr-2" />
-                    {isEditing ? t('updateTask') : t('createTask')}
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+                      {t('cancel')}
+                    </Button>
+                    <motion.div whileHover={{ scale: loading ? 1 : 1.02 }} whileTap={{ scale: loading ? 1 : 0.98 }}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={loading || !formData.title.trim()}
+                        startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <Save size={20} />}
+                        sx={{
+                          borderRadius: 3,
+                          px: 4,
+                          py: 1.5,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.4)',
+                          '&:hover': {
+                            boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
+                            background: 'linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%)',
+                          },
+                          '&:disabled': {
+                            opacity: 0.5,
+                          },
+                        }}
+                      >
+                        {loading ? (isEditing ? t('updating') : t('creating')) : (isEditing ? t('updateTask') : t('createTask'))}
+                      </Button>
+                    </motion.div>
+                  </Box>
+                </Box>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </Container>
+    </Box>
   );
 };
 

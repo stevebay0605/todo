@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTodos } from '../contexts/TodoContext';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme as useAppTheme } from '../contexts/ThemeContext';
 import { t } from '../utils/translations';
 import { Download, Upload, Trash2, User, Bell, Palette, Moon, Sun, Check } from 'lucide-react';
+import { Box, Container, Typography, Card, CardContent, TextField, Button, IconButton, Avatar, Tabs, Tab, Switch, Alert, Grid } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface UserProfile {
   name: string;
@@ -19,7 +21,7 @@ interface AppSettings {
 
 const Settings: React.FC = () => {
   const { todos, getStats } = useTodos();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, isDark } = useAppTheme();
   const stats = getStats();
 
   const [profile, setProfile] = useState<UserProfile>({
@@ -35,14 +37,13 @@ const Settings: React.FC = () => {
     completionSound: false,
   });
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'data'>('profile');
+  const [activeTab, setActiveTab] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Load settings from localStorage
   useEffect(() => {
     const savedSettings = localStorage.getItem('appSettings');
     const savedProfile = localStorage.getItem('userProfile');
-    
+
     if (savedSettings) {
       try {
         setSettings(JSON.parse(savedSettings));
@@ -50,7 +51,7 @@ const Settings: React.FC = () => {
         console.error('Error loading settings:', error);
       }
     }
-    
+
     if (savedProfile) {
       try {
         setProfile(JSON.parse(savedProfile));
@@ -60,7 +61,6 @@ const Settings: React.FC = () => {
     }
   }, []);
 
-  // Save settings to localStorage
   const saveAppSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
     localStorage.setItem('appSettings', JSON.stringify(newSettings));
@@ -88,7 +88,7 @@ const Settings: React.FC = () => {
 
     const dataStr = JSON.stringify(data, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    
+
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
@@ -97,7 +97,7 @@ const Settings: React.FC = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     showSuccessMessage();
   };
 
@@ -109,15 +109,14 @@ const Settings: React.FC = () => {
     reader.onload = (e) => {
       try {
         const importedData = JSON.parse(e.target?.result as string);
-        
+
         if (importedData.settings) {
           saveAppSettings(importedData.settings);
         }
         if (importedData.profile) {
           saveProfile(importedData.profile);
         }
-        
-        // Note: In a real app, you'd also import todos through the context
+
         alert(t('dataImportedSuccess'));
       } catch (error) {
         alert(t('importError'));
@@ -133,260 +132,480 @@ const Settings: React.FC = () => {
     }
   };
 
-  const tabs = [
-    { id: 'profile', label: t('profile'), icon: User },
-    { id: 'preferences', label: t('preferences'), icon: Palette },
-    { id: 'data', label: t('dataPrivacy'), icon: Download },
+  const themeOptions = [
+    { value: 'light', label: t('light'), icon: Sun },
+    { value: 'dark', label: t('dark'), icon: Moon },
+    { value: 'system', label: t('system'), icon: Palette },
+  ];
+
+  const behaviorSettings = [
+    { key: 'notifications', label: t('pushNotifications'), description: t('notificationDesc') },
+    { key: 'autoSave', label: t('autoSave'), description: t('autoSaveDesc') },
+    { key: 'completionSound', label: t('completionSound'), description: t('completionSoundDesc') },
   ];
 
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{t('settings')}</h1>
-          <p className="text-gray-600 dark:text-gray-300">{t('manageAccount')}</p>
-        </div>
+    <Box sx={{ p: { xs: 3, md: 6 } }}>
+      <Container maxWidth="lg">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h3" sx={{ fontWeight: 700, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 1 }}>
+              {t('settings')}
+            </Typography>
+            <Typography variant="body1" sx={{ color: isDark ? 'rgba(209, 213, 219, 1)' : 'rgba(75, 85, 99, 1)' }}>
+              {t('manageAccount')}
+            </Typography>
+          </Box>
+        </motion.div>
 
-        {/* Success Message */}
-        {showSuccess && (
-          <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center animate-slide-in">
-            <Check className="h-5 w-5 mr-2" />
-            {t('settingsSaved')}
-          </div>
-        )}
+        <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.9 }}
+              style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999 }}
+            >
+              <Alert
+                icon={<Check size={20} />}
+                severity="success"
+                sx={{
+                  boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)',
+                  borderRadius: 3,
+                }}
+              >
+                {t('settingsSaved')}
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100 dark:border-gray-700 overflow-hidden">
-          {/* Tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-600">
-            <nav className="flex space-x-8 px-6">
-              {tabs.map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => setActiveTab(id as any)}
-                  className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200 flex items-center ${
-                    activeTab === id
-                      ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
-                  }`}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <Card
+            sx={{
+              bgcolor: isDark ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: 4,
+              border: `1px solid ${isDark ? 'rgba(75, 85, 99, 0.5)' : 'rgba(243, 232, 255, 0.5)'}`,
+            }}
+          >
+            <Tabs
+              value={activeTab}
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              sx={{
+                borderBottom: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}`,
+                px: 3,
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  minHeight: 60,
+                },
+                '& .Mui-selected': {
+                  color: '#667eea',
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#667eea',
+                  height: 3,
+                },
+              }}
+            >
+              <Tab icon={<User size={18} />} iconPosition="start" label={t('profile')} />
+              <Tab icon={<Palette size={18} />} iconPosition="start" label={t('preferences')} />
+              <Tab icon={<Download size={18} />} iconPosition="start" label={t('dataPrivacy')} />
+            </Tabs>
+
+            <CardContent sx={{ p: 4 }}>
+              {activeTab === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {label}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="p-6">
-            {/* Profile Tab */}
-            {activeTab === 'profile' && (
-              <div className="space-y-6">
-                <div className="flex items-center space-x-6">
-                  <div className="relative">
-                    <img
-                      src={profile.avatar}
-                      alt="Profile"
-                      className="w-24 h-24 rounded-full object-cover border-4 border-purple-100 dark:border-purple-800"
-                    />
-                    <div className="absolute bottom-0 right-0 bg-purple-500 text-white rounded-full p-2 cursor-pointer hover:bg-purple-600 transition-colors">
-                      <User className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('profileInformation')}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          {t('displayName')}
-                        </label>
-                        <input
-                          type="text"
-                          value={profile.name}
-                          onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                          onBlur={() => saveProfile(profile)}
-                          className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          {t('emailAddress')}
-                        </label>
-                        <input
-                          type="email"
-                          value={profile.email}
-                          onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                          onBlur={() => saveProfile(profile)}
-                          className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('yourStatistics')}</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
-                      <p className="text-2xl font-bold text-blue-600">{stats.total}</p>
-                      <p className="text-sm text-blue-700 dark:text-blue-400">{t('totalTasks')}</p>
-                    </div>
-                    <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
-                      <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
-                      <p className="text-sm text-green-700 dark:text-green-400">{t('completed')}</p>
-                    </div>
-                    <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-lg">
-                      <p className="text-2xl font-bold text-orange-600">{stats.active}</p>
-                      <p className="text-sm text-orange-700 dark:text-orange-400">{t('active')}</p>
-                    </div>
-                    <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-lg">
-                      <p className="text-2xl font-bold text-purple-600">
-                        {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
-                      </p>
-                      <p className="text-sm text-purple-700 dark:text-purple-400">{t('completionRate')}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Preferences Tab */}
-            {activeTab === 'preferences' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('theme')}</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { value: 'light', label: t('light'), icon: Sun },
-                      { value: 'dark', label: t('dark'), icon: Moon },
-                      { value: 'system', label: t('system'), icon: Palette },
-                    ].map(({ value, label, icon: Icon }) => (
-                      <button
-                        key={value}
-                        onClick={() => {
-                          setTheme(value as any);
-                          saveAppSettings({ ...settings, theme: value as any });
+                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, mb: 4 }}>
+                    <Box sx={{ position: 'relative', alignSelf: 'center' }}>
+                      <Avatar
+                        src={profile.avatar}
+                        alt="Profile"
+                        sx={{ width: 100, height: 100, border: `4px solid ${isDark ? '#764ba2' : '#c5cae9'}` }}
+                      />
+                      <IconButton
+                        sx={{
+                          position: 'absolute',
+                          bottom: 0,
+                          right: 0,
+                          bgcolor: '#667eea',
+                          color: 'white',
+                          width: 36,
+                          height: 36,
+                          '&:hover': {
+                            bgcolor: '#5a67d8',
+                          },
                         }}
-                        className={`flex items-center p-4 border-2 rounded-lg transition-all duration-200 ${
-                          theme === value
-                            ? 'border-purple-500 bg-purple-50'
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
                       >
-                        <Icon className="h-5 w-5 mr-3" />
-                        <span className="font-medium text-gray-900 dark:text-white">{label}</span>
-                        {theme === value && (
-                          <Check className="h-4 w-4 ml-auto text-purple-500" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        <User size={18} />
+                      </IconButton>
+                    </Box>
 
-                <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('notificationsBehavior')}</h3>
-                  <div className="space-y-4">
-                    {[
-                      { key: 'notifications', label: t('pushNotifications'), description: t('notificationDesc') },
-                      { key: 'autoSave', label: t('autoSave'), description: t('autoSaveDesc') },
-                      { key: 'completionSound', label: t('completionSound'), description: t('completionSoundDesc') },
-                    ].map(({ key, label, description }) => (
-                      <div key={key} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                        <div>
-                          <h4 className="font-medium text-gray-900 dark:text-white">{label}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
-                        </div>
-                        <button
-                          onClick={() => saveAppSettings({ ...settings, [key]: !settings[key as keyof AppSettings] })}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
-                            settings[key as keyof AppSettings] ? 'bg-purple-600' : 'bg-gray-200'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              settings[key as keyof AppSettings] ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 2 }}>
+                        {t('profileInformation')}
+                      </Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 1 }}>
+                            {t('displayName')}
+                          </Typography>
+                          <TextField
+                            fullWidth
+                            value={profile.name}
+                            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                            onBlur={() => saveProfile(profile)}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'white',
+                              },
+                            }}
                           />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 1 }}>
+                            {t('emailAddress')}
+                          </Typography>
+                          <TextField
+                            fullWidth
+                            type="email"
+                            value={profile.email}
+                            onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                            onBlur={() => saveProfile(profile)}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'white',
+                              },
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Box>
 
-            {/* Data & Privacy Tab */}
-            {activeTab === 'data' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('dataManagement')}</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">{t('exportData')}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{t('downloadAllData')}</p>
-                      </div>
-                      <button
-                        onClick={exportData}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        {t('export')}
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">{t('importData')}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{t('restoreBackup')}</p>
-                      </div>
-                      <label className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 cursor-pointer">
-                        <Upload className="h-4 w-4 mr-2" />
-                        {t('import')}
-                        <input
-                          type="file"
-                          accept=".json"
-                          onChange={importData}
-                          className="sr-only"
-                        />
-                      </label>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/30">
-                      <div>
-                        <h4 className="font-medium text-red-900 dark:text-red-400">{t('clearAllData')}</h4>
-                        <p className="text-sm text-red-700 dark:text-red-400">{t('permanentlyDelete')}</p>
-                      </div>
-                      <button
-                        onClick={clearAllData}
-                        className="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-600 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        {t('clearData')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{t('privacyInformation')}</h3>
-                  <div className="prose prose-sm text-gray-600 dark:text-gray-400">
-                    <p>
-                      {t('privacyText.intro')}
-                    </p>
-                    <ul className="list-disc pl-5 space-y-2">
-                      {t('privacyText.points').map((point: string, index: number) => (
-                        <li key={index}>{point}</li>
+                  <Box sx={{ pt: 3, borderTop: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}` }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 3 }}>
+                      {t('yourStatistics')}
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {[
+                        { label: t('totalTasks'), value: stats.total, color: '#3b82f6', bg: '#dbeafe' },
+                        { label: t('completed'), value: stats.completed, color: '#10b981', bg: '#d1fae5' },
+                        { label: t('active'), value: stats.active, color: '#f59e0b', bg: '#fed7aa' },
+                        { label: t('completionRate'), value: `${stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%`, color: '#a855f7', bg: '#e9d5ff' },
+                      ].map((stat, index) => (
+                        <Grid item xs={6} sm={3} key={index}>
+                          <motion.div whileHover={{ scale: 1.05 }}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                borderRadius: 3,
+                                bgcolor: isDark ? `${stat.color}20` : stat.bg,
+                                textAlign: 'center',
+                              }}
+                            >
+                              <Typography variant="h4" sx={{ fontWeight: 700, color: stat.color, mb: 0.5 }}>
+                                {stat.value}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: isDark ? 'rgba(209, 213, 219, 1)' : 'rgba(55, 65, 81, 1)', fontWeight: 500 }}>
+                                {stat.label}
+                              </Typography>
+                            </Box>
+                          </motion.div>
+                        </Grid>
                       ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+                    </Grid>
+                  </Box>
+                </motion.div>
+              )}
+
+              {activeTab === 1 && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 3 }}>
+                      {t('theme')}
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {themeOptions.map((option, index) => {
+                        const Icon = option.icon;
+                        return (
+                          <Grid item xs={12} sm={4} key={option.value}>
+                            <motion.div
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                            >
+                              <Button
+                                fullWidth
+                                variant={theme === option.value ? 'contained' : 'outlined'}
+                                startIcon={<Icon size={20} />}
+                                onClick={() => {
+                                  setTheme(option.value as any);
+                                  saveAppSettings({ ...settings, theme: option.value as any });
+                                }}
+                                sx={{
+                                  borderRadius: 3,
+                                  py: 2,
+                                  borderWidth: 2,
+                                  background: theme === option.value ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                  borderColor: theme === option.value ? '#667eea' : isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)',
+                                  color: theme === option.value ? 'white' : isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)',
+                                  '&:hover': {
+                                    borderWidth: 2,
+                                    borderColor: '#667eea',
+                                  },
+                                }}
+                                endIcon={theme === option.value ? <Check size={18} /> : null}
+                              >
+                                {option.label}
+                              </Button>
+                            </motion.div>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  </Box>
+
+                  <Box sx={{ pt: 3, borderTop: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}` }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 3 }}>
+                      {t('notificationsBehavior')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {behaviorSettings.map((setting, index) => (
+                        <motion.div
+                          key={setting.key}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ x: 5 }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              p: 2.5,
+                              borderRadius: 3,
+                              border: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}`,
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                borderColor: '#667eea',
+                              },
+                            }}
+                          >
+                            <Box>
+                              <Typography variant="body1" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 0.5 }}>
+                                {setting.label}
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: isDark ? 'rgba(156, 163, 175, 1)' : 'rgba(107, 114, 128, 1)' }}>
+                                {setting.description}
+                              </Typography>
+                            </Box>
+                            <Switch
+                              checked={settings[setting.key as keyof AppSettings] as boolean}
+                              onChange={() => saveAppSettings({ ...settings, [setting.key]: !settings[setting.key as keyof AppSettings] })}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: '#667eea',
+                                  '& + .MuiSwitch-track': {
+                                    backgroundColor: '#667eea',
+                                  },
+                                },
+                              }}
+                            />
+                          </Box>
+                        </motion.div>
+                      ))}
+                    </Box>
+                  </Box>
+                </motion.div>
+              )}
+
+              {activeTab === 2 && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 3 }}>
+                      {t('dataManagement')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <motion.div whileHover={{ x: 5 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: 2.5,
+                            borderRadius: 3,
+                            border: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}`,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              borderColor: '#667eea',
+                            },
+                          }}
+                        >
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 0.5 }}>
+                              {t('exportData')}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: isDark ? 'rgba(156, 163, 175, 1)' : 'rgba(107, 114, 128, 1)' }}>
+                              {t('downloadAllData')}
+                            </Typography>
+                          </Box>
+                          <Button
+                            variant="outlined"
+                            startIcon={<Download size={18} />}
+                            onClick={exportData}
+                            sx={{
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 600,
+                              borderColor: isDark ? 'rgba(107, 114, 128, 1)' : 'rgba(209, 213, 219, 1)',
+                              color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)',
+                            }}
+                          >
+                            {t('export')}
+                          </Button>
+                        </Box>
+                      </motion.div>
+
+                      <motion.div whileHover={{ x: 5 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: 2.5,
+                            borderRadius: 3,
+                            border: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}`,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              borderColor: '#667eea',
+                            },
+                          }}
+                        >
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 0.5 }}>
+                              {t('importData')}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: isDark ? 'rgba(156, 163, 175, 1)' : 'rgba(107, 114, 128, 1)' }}>
+                              {t('restoreBackup')}
+                            </Typography>
+                          </Box>
+                          <Button
+                            variant="outlined"
+                            component="label"
+                            startIcon={<Upload size={18} />}
+                            sx={{
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 600,
+                              borderColor: isDark ? 'rgba(107, 114, 128, 1)' : 'rgba(209, 213, 219, 1)',
+                              color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)',
+                            }}
+                          >
+                            {t('import')}
+                            <input type="file" accept=".json" onChange={importData} hidden />
+                          </Button>
+                        </Box>
+                      </motion.div>
+
+                      <motion.div whileHover={{ x: 5 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: 2.5,
+                            borderRadius: 3,
+                            border: `2px solid ${isDark ? 'rgba(220, 38, 38, 0.3)' : 'rgba(254, 226, 226, 1)'}`,
+                            bgcolor: isDark ? 'rgba(220, 38, 38, 0.1)' : 'rgba(254, 242, 242, 1)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              borderColor: '#ef4444',
+                            },
+                          }}
+                        >
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: '#ef4444', mb: 0.5 }}>
+                              {t('clearAllData')}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: isDark ? 'rgba(254, 202, 202, 1)' : 'rgba(185, 28, 28, 1)' }}>
+                              {t('permanentlyDelete')}
+                            </Typography>
+                          </Box>
+                          <Button
+                            variant="outlined"
+                            startIcon={<Trash2 size={18} />}
+                            onClick={clearAllData}
+                            sx={{
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 600,
+                              borderColor: '#ef4444',
+                              color: '#ef4444',
+                              '&:hover': {
+                                borderColor: '#dc2626',
+                                bgcolor: 'rgba(239, 68, 68, 0.1)',
+                              },
+                            }}
+                          >
+                            {t('clearData')}
+                          </Button>
+                        </Box>
+                      </motion.div>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ pt: 3, borderTop: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}` }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: isDark ? 'white' : 'rgba(17, 24, 39, 1)', mb: 2 }}>
+                      {t('privacyInformation')}
+                    </Typography>
+                    <Box sx={{ color: isDark ? 'rgba(156, 163, 175, 1)' : 'rgba(107, 114, 128, 1)' }}>
+                      <Typography variant="body2" sx={{ mb: 2 }}>
+                        {t('privacyText.intro')}
+                      </Typography>
+                      <Box component="ul" sx={{ pl: 3, '& li': { mb: 1 } }}>
+                        {t('privacyText.points').map((point: string, index: number) => (
+                          <li key={index}>
+                            <Typography variant="body2">{point}</Typography>
+                          </li>
+                        ))}
+                      </Box>
+                    </Box>
+                  </Box>
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </Container>
+    </Box>
   );
 };
 
