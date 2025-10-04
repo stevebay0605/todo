@@ -22,6 +22,7 @@ const AddEditTodo: React.FC = () => {
     priority: 'medium' as 'low' | 'medium' | 'high',
     category: 'personal' as 'personal' | 'work' | 'shopping' | 'health',
     dueDate: '',
+    assignedTo: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,6 +36,7 @@ const AddEditTodo: React.FC = () => {
         priority: existingTodo.priority,
         category: existingTodo.category,
         dueDate: existingTodo.dueDate || '',
+        assignedTo: existingTodo.assignedTo || '',
       });
     }
   }, [existingTodo]);
@@ -82,6 +84,7 @@ const AddEditTodo: React.FC = () => {
         priority: formData.priority,
         category: formData.category,
         dueDate: formData.dueDate || undefined,
+        assignedTo: formData.assignedTo.trim() || undefined,
         completed: existingTodo?.completed || false,
       };
 
@@ -328,6 +331,24 @@ const AddEditTodo: React.FC = () => {
                         {errors.dueDate}
                       </Alert>
                     )}
+                  </Box>
+
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? 'rgba(229, 231, 235, 1)' : 'rgba(55, 65, 81, 1)', mb: 1 }}>
+                      {t('assignedTo')} {t('optional')}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      placeholder={t('assignToSomeone')}
+                      value={formData.assignedTo}
+                      onChange={(e) => handleInputChange('assignedTo', e.target.value)}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 3,
+                          bgcolor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'white',
+                        },
+                      }}
+                    />
                   </Box>
 
                   <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2, borderTop: `1px solid ${isDark ? 'rgba(75, 85, 99, 1)' : 'rgba(229, 231, 235, 1)'}` }}>

@@ -53,6 +53,8 @@ export const translations = {
   health: 'Santé',
   dueDate: 'Date d\'échéance',
   optional: '(Optionnel)',
+  assignedTo: 'Assigné à',
+  assignToSomeone: 'Nom de la personne...',
   cancel: 'Annuler',
   updateTask: 'Mettre à jour la tâche',
   createTask: 'Créer la tâche',

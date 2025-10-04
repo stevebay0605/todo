@@ -11,6 +11,7 @@ export interface Todo {
   createdAt: string;
   updatedAt: string;
   dueDate?: string;
+  assignedTo?: string;
 }
 
 interface TodoState {
