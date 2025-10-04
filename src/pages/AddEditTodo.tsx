@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTodos } from '../contexts/TodoContext';
 import { t } from '../utils/translations';
 import { Save, ArrowLeft, Calendar, AlertCircle, Clock, User, Briefcase, ShoppingCart, Heart } from 'lucide-react';
+import Button from '../components/Button';
 
 const AddEditTodo: React.FC = () => {
   const navigate = useNavigate();
@@ -120,210 +121,187 @@ const AddEditTodo: React.FC = () => {
   ];
 
   return (
-    <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="space-y-6">
+      {/* Header avec Hero section */}
+      <div className="hero bg-base-200 rounded-box animate-fade-in">
+        <div className="hero-content flex-col lg:flex-row justify-between w-full py-8">
           <div className="flex items-center">
-            <button
+            <Button
+              variant="ghost"
+              icon={ArrowLeft}
+              shape="circle"
               onClick={() => navigate(-1)}
-              className="mr-4 p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
+              className="mr-4"
+            />
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-4xl font-bold">
                 {isEditing ? t('editTask') : t('addNewTaskTitle')}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
+              <p className="mt-2 text-base-content/60">
                 {isEditing ? t('updateTaskDetails') : t('createNewTask')}
               </p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Form */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100 dark:border-gray-700 overflow-hidden">
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
-            {/* Title */}
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('taskTitle')} *
-              </label>
-              <input
-                type="text"
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder={t('whatNeedsDone')}
-                className={`block w-full px-4 py-3 rounded-xl border-2 transition-colors duration-200 ${
-                  errors.title
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500'
-                } bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1`}
-              />
-              {errors.title && (
-                <p className="mt-2 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
+      {/* Formulaire */}
+      <div className="card bg-base-100 shadow-xl animate-slide-in">
+        <form onSubmit={handleSubmit} className="card-body">
+          {/* Titre */}
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text font-medium">{t('taskTitle')} *</span>
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder={t('whatNeedsDone')}
+              className={`input input-bordered w-full ${
+                errors.title ? 'input-error' : ''
+              }`}
+            />
+            {errors.title && (
+              <label className="label">
+                <span className="label-text-alt text-error flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.title}
-                </p>
-              )}
-            </div>
-
-            {/* Description */}
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('description')}
+                </span>
               </label>
-              <textarea
-                id="description"
-                rows={4}
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder={t('additionalDetails')}
-                className={`block w-full px-4 py-3 rounded-xl border-2 resize-none transition-colors duration-200 ${
-                  errors.description
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500'
-                } bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1`}
-              />
-              <div className="flex justify-between items-center mt-2">
-                {errors.description && (
-                  <p className="text-sm text-red-600 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-1" />
-                    {errors.description}
-                  </p>
-                )}
-                <p className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
-                  {formData.description.length}/500
-                </p>
-              </div>
-            </div>
+            )}
+          </div>
 
-            {/* Priority */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                {t('priorityLevel')}
+          {/* Description */}
+          <div className="form-control w-full mt-4">
+            <label className="label">
+              <span className="label-text font-medium">{t('description')}</span>
+              <span className="label-text-alt">{formData.description.length}/500</span>
+            </label>
+            <textarea
+              rows={4}
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder={t('additionalDetails')}
+              className={`textarea textarea-bordered w-full ${
+                errors.description ? 'textarea-error' : ''
+              }`}
+            />
+            {errors.description && (
+              <label className="label">
+                <span className="label-text-alt text-error flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {errors.description}
+                </span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {priorityOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleInputChange('priority', option.value)}
-                      className={`relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        formData.priority === option.value
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full mr-3 ${option.color}`}>
-                        {Icon ? <Icon className="h-4 w-4" /> : <div className="w-2 h-2 rounded-full bg-current" />}
-                      </div>
-                      <span className="font-medium text-gray-900 dark:text-white">{option.label}</span>
-                      {formData.priority === option.value && (
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full"></div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            )}
+          </div>
 
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                {t('category')}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {categoryOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleInputChange('category', option.value)}
-                      className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        formData.category === option.value
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 ${option.color}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{option.label}</span>
-                      {formData.category === option.value && (
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full"></div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Due Date */}
-            <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('dueDate')} {t('optional')}
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+          {/* Priorité */}
+          <div className="form-control w-full mt-4">
+            <label className="label">
+              <span className="label-text font-medium">{t('priorityLevel')}</span>
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {priorityOptions.map(({ value, label, color, icon: Icon }) => (
+                <div
+                  key={value}
+                  className={`card cursor-pointer transition-all duration-300 hover-glow ${
+                    formData.priority === value
+                      ? 'bg-primary text-primary-content'
+                      : 'bg-base-200 hover:bg-base-300'
+                  }`}
+                  onClick={() => handleInputChange('priority', value)}
+                >
+                  <div className="card-body items-center text-center p-4">
+                    {Icon && <Icon className="w-6 h-6 mb-2" />}
+                    <span className="font-medium">{label}</span>
+                  </div>
                 </div>
-                <input
-                  type="date"
-                  id="dueDate"
-                  value={formData.dueDate}
-                  onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className={`block w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-colors duration-200 ${
-                    errors.dueDate
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500'
-                  } bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1`}
-                />
-              </div>
-              {errors.dueDate && (
-                <p className="mt-2 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  {errors.dueDate}
-                </p>
-              )}
+              ))}
             </div>
+          </div>
 
-            {/* Submit Buttons */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
-                disabled={loading}
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={loading || !formData.title.trim()}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                    {isEditing ? t('updating') : t('creating')}
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-5 w-5 mr-2" />
-                    {isEditing ? t('updateTask') : t('createTask')}
-                  </>
-                )}
-              </button>
+          {/* Catégorie */}
+          <div className="form-control w-full mt-4">
+            <label className="label">
+              <span className="label-text font-medium">{t('category')}</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {categoryOptions.map(({ value, label, color, icon: Icon }) => (
+                <div
+                  key={value}
+                  className={`card cursor-pointer transition-all duration-300 hover-glow ${
+                    formData.category === value
+                      ? 'bg-primary text-primary-content'
+                      : 'bg-base-200 hover:bg-base-300'
+                  }`}
+                  onClick={() => handleInputChange('category', value)}
+                >
+                  <div className="card-body items-center text-center p-4">
+                    {Icon && <Icon className="w-6 h-6 mb-2" />}
+                    <span className="font-medium">{label}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* Date d'échéance */}
+          <div className="form-control w-full mt-4">
+            <label className="label">
+              <span className="label-text font-medium">
+                {t('dueDate')} {t('optional')}
+              </span>
+            </label>
+            <div className="input-group">
+              <span className="btn btn-square btn-ghost">
+                <Calendar className="w-5 h-5" />
+              </span>
+              <input
+                type="date"
+                value={formData.dueDate}
+                onChange={(e) => handleInputChange('dueDate', e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className={`input input-bordered w-full ${
+                  errors.dueDate ? 'input-error' : ''
+                }`}
+              />
+            </div>
+            {errors.dueDate && (
+              <label className="label">
+                <span className="label-text-alt text-error flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {errors.dueDate}
+                </span>
+              </label>
+            )}
+          </div>
+
+          {/* Boutons d'action */}
+          <div className="card-actions justify-end mt-8 gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              icon={Save}
+              loading={loading}
+              disabled={loading || !formData.title.trim()}
+              animation="ripple"
+            >
+              {loading 
+                ? (isEditing ? t('updating') : t('creating'))
+                : (isEditing ? t('updateTask') : t('createTask'))
+              }
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

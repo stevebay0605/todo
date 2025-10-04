@@ -1,12 +1,12 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    sourcemap: process.env.NODE_ENV === 'development',
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -17,14 +17,28 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['lucide-react']
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui': ['lucide-react'],
+          'styles': ['tailwindcss', 'daisyui']
         }
       }
     }
   },
-  optimizeDeps: {
-    exclude: ['lucide-react']
+  server: {
+    port: 3000,
+    strictPort: true,
+    host: true,
+    open: true
   },
-  publicDir: 'public' // Assure que tous les fichiers du dossier public sont copiés
+  preview: {
+    port: 3000,
+    strictPort: true,
+    host: true,
+    open: true
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
+  },
 });

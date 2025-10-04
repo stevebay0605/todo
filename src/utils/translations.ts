@@ -5,6 +5,17 @@ export const translations = {
   tasks: 'Tâches',
   addTask: 'Ajouter une tâche',
   settings: 'Paramètres',
+  customizeApp: 'Personnalisez votre expérience',
+
+  // Thème et apparence
+  appearance: 'Apparence',
+  theme: 'Thème',
+  light: 'Clair',
+  dark: 'Sombre',
+  system: 'Système',
+  lightMode: 'Mode clair',
+  darkMode: 'Mode sombre',
+  accentColor: 'Couleur d\'accent',
 
   // Dashboard
   welcomeBack: 'Bon retour ! 👋',
@@ -12,14 +23,8 @@ export const translations = {
   totalTasks: 'Total des tâches',
   completed: 'Terminées',
   active: 'Actives',
-  highPriority: 'Priorité élevée',
   progressOverview: 'Aperçu des progrès',
-  complete: 'Terminé',
-  completedToday: 'Terminées aujourd\'hui',
-  remaining: 'Restantes',
   quickActions: 'Actions rapides',
-  addNewTask: 'Ajouter une nouvelle tâche',
-  viewAllTasks: 'Voir toutes les tâches',
   recentTasks: 'Tâches récentes',
   noTasksYet: 'Aucune tâche pour le moment',
   createFirstTask: 'Créer votre première tâche',
@@ -41,16 +46,12 @@ export const translations = {
   taskTitle: 'Titre de la tâche',
   whatNeedsDone: 'Que faut-il faire ?',
   description: 'Description',
-  additionalDetails: 'Ajouter des détails supplémentaires...',
+  additionalDetails: 'Détails supplémentaires (optionnel)',
   priorityLevel: 'Niveau de priorité',
-  lowPriority: 'Priorité faible',
+  lowPriority: 'Basse priorité',
   mediumPriority: 'Priorité moyenne',
-
+  highPriority: 'Haute priorité',
   category: 'Catégorie',
-  personal: 'Personnel',
-  work: 'Travail',
-  shopping: 'Courses',
-  health: 'Santé',
   dueDate: 'Date d\'échéance',
   optional: '(Optionnel)',
   cancel: 'Annuler',
@@ -60,51 +61,65 @@ export const translations = {
   creating: 'Création...',
 
   // Settings
-  manageAccount: 'Gérer votre compte et les préférences de l\'application',
+  manageAccount: 'Gérer votre compte et les préférences',
   profile: 'Profil',
   preferences: 'Préférences',
-  dataPrivacy: 'Données et confidentialité',
+  dataPrivacy: 'Données & Confidentialité',
   profileInformation: 'Informations du profil',
   displayName: 'Nom d\'affichage',
   emailAddress: 'Adresse e-mail',
   yourStatistics: 'Vos statistiques',
-  completionRate: 'Taux de réussite',
-  theme: 'Thème',
-  light: 'Clair',
-  dark: 'Sombre',
-  system: 'Système',
-  notificationsBehavior: 'Notifications et comportement',
+  completionRate: 'Taux de complétion',
+  notificationsBehavior: 'Notifications & Comportement',
   pushNotifications: 'Notifications push',
-  notificationDesc: 'Être notifié des dates d\'échéance et des rappels',
+  notificationDesc: 'Recevez des alertes pour les tâches importantes',
   autoSave: 'Sauvegarde automatique',
-  autoSaveDesc: 'Sauvegarder automatiquement les modifications lors de la saisie',
-  completionSound: 'Son de completion',
-  completionSoundDesc: 'Jouer un son lors de la completion des tâches',
+  autoSaveDesc: 'Sauvegardez automatiquement vos modifications',
+  completionSound: 'Son de complétion',
+  completionSoundDesc: 'Jouer un son lors de la complétion d\'une tâche',
+
+  // Data Management
   dataManagement: 'Gestion des données',
   exportData: 'Exporter les données',
-  downloadAllData: 'Télécharger toutes vos tâches et paramètres',
-  export: 'Exporter',
+  downloadAllData: 'Télécharger toutes vos données',
   importData: 'Importer les données',
-  restoreBackup: 'Restaurer à partir d\'une sauvegarde précédente',
-  import: 'Importer',
+  restoreBackup: 'Restaurer une sauvegarde',
   clearAllData: 'Effacer toutes les données',
-  permanentlyDelete: 'Supprimer définitivement toutes les tâches et paramètres',
-  clearData: 'Effacer les données',
-  privacyInformation: 'Informations sur la confidentialité',
-  settingsSaved: 'Paramètres sauvegardés avec succès !',
+  permanentlyDelete: 'Supprimer définitivement toutes vos données',
+  export: 'Exporter',
+  import: 'Importer',
+  clearData: 'Effacer',
+  confirmClearData: 'Êtes-vous sûr de vouloir effacer toutes vos données ? Cette action est irréversible.',
+  dataImportedSuccess: 'Données importées avec succès',
+  importError: 'Erreur lors de l\'importation des données',
+  settingsSaved: 'Paramètres enregistrés',
 
-  // Priority labels
+  // Privacy
+  privacyInformation: 'Informations de confidentialité',
+  privacyText: {
+    intro: 'Nous prenons votre confidentialité au sérieux. Voici comment nous gérons vos données :',
+    points: [
+      'Toutes vos données sont stockées localement sur votre appareil',
+      'Aucune donnée n\'est envoyée à des serveurs externes',
+      'Vos préférences sont sauvegardées dans le stockage local du navigateur',
+      'Vous pouvez exporter ou supprimer vos données à tout moment'
+    ]
+  },
+
+  // Priority and Status
   priority: 'priorité',
   low: 'faible',
   medium: 'moyenne',
   high: 'élevée',
+  complete: 'Terminé',
+  remaining: 'Restantes',
 
   // Categories
   categories: {
-    personal: 'personnel',
-    work: 'travail',
-    shopping: 'courses',
-    health: 'santé'
+    personal: 'Personnel',
+    work: 'Travail',
+    shopping: 'Courses',
+    health: 'Santé'
   },
 
   // Date formatting
@@ -123,26 +138,9 @@ export const translations = {
   descriptionTooLong: 'La description doit faire moins de 500 caractères',
   dueDatePast: 'La date d\'échéance ne peut pas être dans le passé',
 
-  // Confirmation messages
-  confirmClearData: 'Êtes-vous sûr de vouloir effacer toutes les données ? Cette action ne peut pas être annulée.',
-  dataImportedSuccess: 'Données importées avec succès ! Veuillez actualiser la page pour voir les tâches importées.',
-  importError: 'Erreur lors de l\'importation des données. Veuillez vérifier le format du fichier.',
-
-  // Privacy text
-  privacyText: {
-    intro: 'Vos données sont stockées localement dans votre navigateur et ne sont envoyées à aucun serveur externe. Nous ne collectons, ne stockons ni ne partageons aucune information personnelle.',
-    points: [
-      'Toutes les tâches et paramètres sont stockés dans le localStorage de votre navigateur',
-      'Aucune inscription ou connexion de compte requise',
-      'L\'export/import de données vous permet de sauvegarder et transférer vos données',
-      'Effacer les données du navigateur supprimera toutes les tâches et paramètres'
-    ]
-  },
-
-  // Messages d'erreur
-  errorOccurred: 'Une erreur est survenue',
-  errorMessage: 'Nous sommes désolés, une erreur inattendue s\'est produite. Veuillez rafraîchir la page pour réessayer.',
-  refreshPage: 'Rafraîchir la page',
+  // Version and Updates
+  version: 'Version',
+  checkUpdates: 'Vérifier les mises à jour'
 };
 
 // Fonction utilitaire pour obtenir une traduction

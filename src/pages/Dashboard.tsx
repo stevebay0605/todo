@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTodos } from '../contexts/TodoContext';
 import { t, formatDateShort } from '../utils/translations';
-import { CheckCircle2, Clock, AlertCircle, Plus, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, Plus, TrendingUp, Calendar } from 'lucide-react';
+import Button from '../components/Button';
 
 const Dashboard: React.FC = () => {
   const { todos, getStats } = useTodos();
@@ -14,181 +15,209 @@ const Dashboard: React.FC = () => {
 
   const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
-  const categoryStats = todos.reduce((acc, todo) => {
-    acc[todo.category] = (acc[todo.category] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            {t('welcomeBack')}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">{t('todayActivity')}</p>
+    <div className="space-y-6">
+      {/* Header avec Hero section */}
+      <div className="hero bg-base-200 rounded-box">
+        <div className="hero-content text-center py-8">
+          <div className="max-w-xl">
+            <h1 className="text-4xl font-bold">{t('welcomeBack')}</h1>
+            <p className="py-4 text-base-content/80">{t('todayActivity')}</p>
+          </div>
         </div>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100">
-                <CheckCircle2 className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('totalTasks')}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-              </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="stats shadow-lg bg-base-100">
+          <div className="stat">
+            <div className="stat-figure text-primary">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
-          </div>
-
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-green-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('completed')}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.completed}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-orange-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-orange-100">
-                <Clock className="h-6 w-6 text-orange-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('active')}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.active}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-red-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-red-100">
-                <AlertCircle className="h-6 w-6 text-red-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('highPriority')}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.inProgress}</p>
-              </div>
-            </div>
+            <div className="stat-title">{t('totalTasks')}</div>
+            <div className="stat-value text-primary">{stats.total}</div>
           </div>
         </div>
 
-        {/* Progress and Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Progress Card */}
-          <div className="lg:col-span-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100 dark:border-gray-700">
+        <div className="stats shadow-lg bg-base-100">
+          <div className="stat">
+            <div className="stat-figure text-success">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div className="stat-title">{t('completed')}</div>
+            <div className="stat-value text-success">{stats.completed}</div>
+          </div>
+        </div>
+
+        <div className="stats shadow-lg bg-base-100">
+          <div className="stat">
+            <div className="stat-figure text-warning">
+              <Clock className="w-8 h-8" />
+            </div>
+            <div className="stat-title">{t('active')}</div>
+            <div className="stat-value text-warning">{stats.active}</div>
+          </div>
+        </div>
+
+        <div className="stats shadow-lg bg-base-100">
+          <div className="stat">
+            <div className="stat-figure text-error">
+              <AlertCircle className="w-8 h-8" />
+            </div>
+            <div className="stat-title">{t('highPriority')}</div>
+            <div className="stat-value text-error">{stats.inProgress}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress and Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Progress Card */}
+        <div className="card bg-base-100 shadow-lg lg:col-span-2">
+          <div className="card-body">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('progressOverview')}</h3>
-              <div className="flex items-center text-sm text-green-600">
-                <TrendingUp className="h-4 w-4 mr-1" />
+              <h3 className="card-title">{t('progressOverview')}</h3>
+              <div className="badge badge-success gap-2">
+                <TrendingUp className="w-4 h-4" />
                 {completionRate}% {t('complete')}
               </div>
             </div>
+
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600 dark:text-gray-400">{t('progressOverview')}</span>
-                  <span className="font-medium text-gray-900 dark:text-white">{completionRate}%</span>
+                  <span className="text-base-content/60">{t('progressOverview')}</span>
+                  <span className="font-medium">{completionRate}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${completionRate}%` }}
-                  ></div>
-                </div>
+                <progress 
+                  className="progress progress-primary w-full" 
+                  value={completionRate} 
+                  max="100"
+                ></progress>
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('completedToday')}</p>
-                  <p className="text-xl font-bold text-green-600">{stats.completed}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('remaining')}</p>
-                  <p className="text-xl font-bold text-orange-600">{stats.active}</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('quickActions')}</h3>
-            <div className="space-y-3">
-              <Link
-                to="/add"
-                className="flex items-center p-3 rounded-lg border-2 border-dashed border-purple-300 dark:border-purple-600 text-purple-600 dark:text-purple-400 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-gray-700 transition-all duration-200 group"
-              >
-                <Plus className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
-                <span className="font-medium">{t('addNewTask')}</span>
-              </Link>
-              <Link
-                to="/todos"
-                className="flex items-center p-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <CheckCircle2 className="h-5 w-5 mr-3" />
-                <span className="font-medium">{t('viewAllTasks')}</span>
-              </Link>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="stats bg-success/10">
+                  <div className="stat">
+                    <div className="stat-title text-success">{t('completedToday')}</div>
+                    <div className="stat-value text-success text-2xl">{stats.completed}</div>
+                  </div>
+                </div>
+                <div className="stats bg-warning/10">
+                  <div className="stat">
+                    <div className="stat-title text-warning">{t('remaining')}</div>
+                    <div className="stat-value text-warning text-2xl">{stats.active}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Recent Tasks */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('recentTasks')}</h3>
-            <Link
-              to="/todos"
-              className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
-            >
-              {t('viewAll')}
-            </Link>
+        {/* Quick Actions */}
+        <div className="card bg-base-100 shadow-lg">
+          <div className="card-body">
+            <h3 className="card-title">{t('quickActions')}</h3>
+            <div className="space-y-3">
+              <Button
+                variant="ghost"
+                icon={Plus}
+                fullWidth
+                onClick={() => window.location.assign('/add')}
+                className="btn-outline"
+              >
+                {t('addNewTask')}
+              </Button>
+              <Button
+                variant="primary"
+                icon={CheckCircle2}
+                fullWidth
+                onClick={() => window.location.assign('/todos')}
+                animation="gradient"
+              >
+                {t('viewAllTasks')}
+              </Button>
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Recent Tasks */}
+      <div className="card bg-base-100 shadow-lg">
+        <div className="card-body">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="card-title">{t('recentTasks')}</h3>
+            <Link to="/todos" className="link link-primary">{t('viewAll')}</Link>
+          </div>
+
           {recentTodos.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-gray-400 dark:text-gray-500 mb-2">
-                <CheckCircle2 className="h-12 w-12 mx-auto" />
+              <div className="avatar placeholder mb-4">
+                <div className="bg-primary/10 text-primary rounded-full w-16">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">{t('noTasksYet')}</p>
-              <Link
-                to="/add"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-200"
+              <p className="text-base-content/60 mb-4">{t('noTasksYet')}</p>
+              <Button
+                variant="primary"
+                icon={Plus}
+                onClick={() => window.location.assign('/add')}
+                animation="gradient"
               >
-                <Plus className="h-4 w-4 mr-2" />
                 {t('createFirstTask')}
-              </Link>
+              </Button>
             </div>
           ) : (
             <div className="space-y-3">
               {recentTodos.map((todo) => (
-                <div
+                <Link
+                  to={`/edit/${todo.id}`}
                   key={todo.id}
-                  className="flex items-center p-4 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 transition-all duration-200 hover:shadow-md"
+                  className="block group"
                 >
-                  <div
-                    className={`w-3 h-3 rounded-full mr-3 ${
-                      todo.completed ? 'bg-green-500' : 'bg-orange-500'
-                    }`}
-                  ></div>
-                  <div className="flex-grow">
-                    <p className={`font-medium ${todo.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
-                      {todo.title}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-                      {t(`categories.${todo.category}`)} • {t(todo.priority)} {t('priority')}
-                    </p>
+                  <div className="indicator w-full">
+                    {todo.priority === 'high' && (
+                      <span className="indicator-item badge badge-error animate-pulse"></span>
+                    )}
+                    <div className="card bg-base-200 hover:bg-base-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                      <div className="card-body p-4">
+                        <div className="flex items-start gap-4">
+                          <div className={`avatar placeholder ${todo.completed ? 'online' : todo.priority === 'high' ? 'offline pulse' : 'offline'}`}>
+                            <div className={`bg-${todo.completed ? 'success' : todo.priority === 'high' ? 'error' : 'primary'}-content/10 text-${todo.completed ? 'success' : todo.priority === 'high' ? 'error' : 'primary'} rounded-full w-10 h-10 flex items-center justify-center`}>
+                              {todo.completed ? '✓' : todo.priority === 'high' ? '!' : '○'}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-medium text-lg mb-1 group-hover:text-primary transition-colors ${todo.completed ? 'line-through opacity-50' : ''}`}>
+                              {todo.title}
+                            </h4>
+                            {todo.description && (
+                              <p className="text-base-content/60 text-sm line-clamp-2 mb-2">
+                                {todo.description}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap gap-2">
+                              <div className={`badge ${getCategoryBadgeClass(todo.category)} badge-sm`}>
+                                {t(`categories.${todo.category}`)}
+                              </div>
+                              <div className={`badge ${getPriorityBadgeClass(todo.priority)} badge-sm gap-1`}>
+                                {todo.priority === 'high' && <AlertCircle className="w-3 h-3" />}
+                                {todo.priority === 'medium' && <Clock className="w-3 h-3" />}
+                                {t(todo.priority)}
+                              </div>
+                              {todo.dueDate && (
+                                <div className="badge badge-ghost badge-sm gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {formatDateShort(todo.dueDate)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-400 dark:text-gray-500">
-                    {formatDateShort(todo.updatedAt)}
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
