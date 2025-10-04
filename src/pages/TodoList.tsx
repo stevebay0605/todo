@@ -305,6 +305,14 @@ const TodoList: React.FC = () => {
                                     sx={{ bgcolor: '#e0e7ff', fontWeight: 500 }}
                                   />
                                 )}
+                                {todo.assignedTo && (
+                                  <Chip
+                                    icon={<Circle size={14} style={{ fill: '#10b981' }} />}
+                                    label={todo.assignedTo}
+                                    size="small"
+                                    sx={{ bgcolor: '#d1fae5', color: '#065f46', fontWeight: 500 }}
+                                  />
+                                )}
                               </Box>
                             </Box>
 
